@@ -45,12 +45,11 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
-            'roles' => 'required',
+            'role' => 'required|string',
         ]);
         if ($validator->fails()) {
             return $this->responseUnprocessable($validator->errors());
         }
-        DB::beginTransaction();
         try {
 
             $user=new User();
@@ -58,7 +57,8 @@ class UserController extends Controller
             $user->name=$request->name;
             $user->email=$request->email;
             $user->password=Hash::make($request->password);
-            
+            $user->role=$request->role;
+
             if ($user->save())
             {
                 $token = self::getToken($request->email, $request->password); // generate user token
@@ -66,26 +66,17 @@ class UserController extends Controller
                 $user->auth_token = $token; // update user token
                 $user->save();
 
-                $userRole=new UserRole;
-
-                if(count($request->roles)>0){
-                    foreach($request->roles as $role){
-                        $userRole->user_id=$user->id;
-                        $userRole->role=$role;
-                    }
-                }
-                DB::commit();
                 return response()->json([
                     'status' => 201,
                     'success'=>true,
-                    'data'=>['name'=>$user->name,'email'=>$request->email,'auth_token'=>$token]
+                    'data'=>['name'=>$user->name,'email'=>$user->email,'role'=>$user->role,'auth_token'=>$token]
                 ]);
             }
             else{
                 return response()->json([
                     'status' => 401,
                     'success'=>false,
-                    'data'=>'Couldnt register the user'
+                    'data'=>'Could not register the user'
                 ]);
             }
         } catch (Exception $e) {
@@ -111,7 +102,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => 201,
                 'success'=>true,
-                'data'=>['name'=>$user->name,'email'=>$user->email,'auth_token'=>$token]
+                'data'=>['name'=>$user->name,'email'=>$user->email,'role'=>$user->role,'auth_token'=>$token]
             ]);
         }
         else 
