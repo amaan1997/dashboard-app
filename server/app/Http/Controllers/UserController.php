@@ -42,7 +42,8 @@ class UserController extends Controller
     {
         // Validate all the required parameters have been sent.
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'firstName' => 'required|string|max:255',
+            'lastName' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|string',
@@ -54,7 +55,8 @@ class UserController extends Controller
 
             $user=new User();
 
-            $user->name=$request->name;
+            $user->first_name=$request->firstName;
+            $user->last_name=$request->lastName;
             $user->email=$request->email;
             $user->password=Hash::make($request->password);
             $user->role=$request->role;
@@ -69,14 +71,15 @@ class UserController extends Controller
                 return response()->json([
                     'status' => 201,
                     'success'=>true,
-                    'data'=>['name'=>$user->name,'email'=>$user->email,'role'=>$user->role,'auth_token'=>$token]
+                    'access_token'=>$token,
+                    'user'=>['name'=>$user->name,'email'=>$user->email,'role'=>$user->role,'auth_token'=>$token]
                 ]);
             }
             else{
                 return response()->json([
                     'status' => 401,
                     'success'=>false,
-                    'data'=>'Could not register the user'
+                    'error'=>'Could not register the user'
                 ]);
             }
         } catch (Exception $e) {

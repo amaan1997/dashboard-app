@@ -52,7 +52,7 @@ const routesConfig = [
   },
   {
     path: '/app',
-    guard: AuthGuard,
+    // guard: AuthGuard,
     layout: DashboardLayout,
     routes: [
       {

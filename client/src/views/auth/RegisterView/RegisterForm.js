@@ -17,12 +17,23 @@ import {
 } from '@material-ui/core';
 import { register } from 'src/actions/accountActions';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   select:{
-    width:505
+    width:505,
+    marginBottom:theme.spacing(1)
   }
 }));
+const userRoles=[
+  {value:'lead_generator',label:'Lead Generator'},
+  {value:'client_care_specialist',label:'Client Care Specialist'},
+  {value:'call_center_agent',label:'Call Center Agent'},
+  {value:'customer_service_agent',label:'Customer Service Agent'},
+  {value:'sales_representative',label:'Sales Representative'},
+  {value:'sales_manager',label:'Sales Manager'},
+  {value:'Call_agent_supervisor',label:'Call Agent Supervisor'}
+]
+
 
 function RegisterForm({ className, onSubmitSuccess, ...rest }) {
   const classes = useStyles();
@@ -55,12 +66,11 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
           .required('Password is required'),
         role: Yup.string()
           .required('Role is required'),
-        policy: Yup.boolean().oneOf([true], 'This field must be checked')
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
           await dispatch(register(values));
-          onSubmitSuccess();
+          // onSubmitSuccess();
         } catch (error) {
           setStatus({ success: false });
           setErrors({ submit: error.message });
@@ -146,12 +156,11 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
               value={values.role}
               className={classes.select}
             >
-              <MenuItem value="lead_generator">Lead Generator</MenuItem>
-              <MenuItem value="client_care_specialist">Client Care Specialist</MenuItem>
-              <MenuItem value="call_center_agent">Call Center Agent</MenuItem>
-              <MenuItem value="customer_service_agent">Customer Service Agent</MenuItem>
-              <MenuItem value="sales_representative">Sales Representative</MenuItem>
-              <MenuItem value="sales_manager">Sales Manager</MenuItem>
+              {
+                userRoles.map(role=>(
+                  <MenuItem value={role.value}>{role.label}</MenuItem>
+                  ))
+                }
             </Select>
           </FormControl>
           {Boolean(touched.role && errors.role) && (

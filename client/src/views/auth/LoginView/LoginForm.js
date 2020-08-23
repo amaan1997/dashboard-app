@@ -37,6 +37,7 @@ function LoginForm({ className, onSubmitSuccess, ...rest }) {
         setSubmitting
       }) => {
         try {
+          console.log("test1")
           await dispatch(login(values.email, values.password));
           onSubmitSuccess();
         } catch (error) {
