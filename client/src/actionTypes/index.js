@@ -1,3 +1,5 @@
+export const API_URL='http://localhost:8000/api/v1'
+export const LOGIN_REQUEST='LOGIN_REQUEST';
 export const LOGIN_SUCCESS='LOGIN_SUCCESS';
 export const LOGIN_FAILED='LOGIN_FAILED';
 export const REGISTER_SUCCESS='REGISTER_SUCCESS';

@@ -15,25 +15,20 @@ import {
   Select,
   MenuItem
 } from '@material-ui/core';
-import { register } from 'src/actions/accountActions';
+import {userRoles} from 'src/utils/data'
+import axios from 'src/utils/axios'
+import { API_URL, REGISTER_SUCCESS, REGISTER_FAILED } from 'src/actionTypes';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
   select:{
     width:505,
     marginBottom:theme.spacing(1)
+  },
+  alignCenter:{
+    textAlign:'center'
   }
-}));
-const userRoles=[
-  {value:'lead_generator',label:'Lead Generator'},
-  {value:'client_care_specialist',label:'Client Care Specialist'},
-  {value:'call_center_agent',label:'Call Center Agent'},
-  {value:'customer_service_agent',label:'Customer Service Agent'},
-  {value:'sales_representative',label:'Sales Representative'},
-  {value:'sales_manager',label:'Sales Manager'},
-  {value:'Call_agent_supervisor',label:'Call Agent Supervisor'}
-]
-
+}))
 
 function RegisterForm({ className, onSubmitSuccess, ...rest }) {
   const classes = useStyles();
@@ -47,7 +42,6 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
         email: '',
         password: '',
         role:'',
-        policy: false
       }}
       validationSchema={Yup.object().shape({
         firstName: Yup.string()
@@ -68,15 +62,32 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
           .required('Role is required'),
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-        try {
-          await dispatch(register(values));
-          // onSubmitSuccess();
-        } catch (error) {
+        axios
+        .post(`${API_URL}/auth/register`, values)
+        .then(res => {
+          const accessToken = res.data.auth_token;
+          localStorage.setItem('access_token', accessToken);
+          axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+          const user = res.data.user;
+          dispatch({
+            type: REGISTER_SUCCESS,
+            res: user
+          });
+          onSubmitSuccess();
+        })
+        .catch(err => {
+          const { error } = err.response.data;
+          dispatch({
+            type: REGISTER_FAILED,
+            error
+          });
+          const message = error || 'Something went wrong';
+
           setStatus({ success: false });
-          setErrors({ submit: error.message });
-          setSubmitting(false);
-        }
-      }}
+          setErrors({ submit: message });
+        });
+    }}
     >
       {({
         errors,
@@ -165,6 +176,13 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
           </FormControl>
           {Boolean(touched.role && errors.role) && (
             <FormHelperText error>{errors.role}</FormHelperText>
+          )}
+          {errors.submit && (
+            <Box mt={3}>
+              <FormHelperText className={classes.alignCenter} error>
+                {errors.submit}{' '}
+              </FormHelperText>
+            </Box>
           )}
           <Box mt={2}>
             <Button

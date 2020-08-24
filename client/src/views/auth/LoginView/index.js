@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { shallowEqual, useSelector } from 'react-redux';
+import { connect } from "react-redux";
 import { useHistory } from 'react-router';
 import {
   Avatar,
@@ -82,8 +84,9 @@ function LoginView() {
   const classes = useStyles();
   const history = useHistory();
 
+
   const handleSubmitSuccess = () => {
-    history.push('/app');
+    history.push('/app')
   };
 
   return (
@@ -105,7 +108,8 @@ function LoginView() {
               Sign in
             </Typography>
             <Box mt={3}>
-              <LoginForm onSubmitSuccess={handleSubmitSuccess} />
+              <LoginForm onSubmitSuccess={handleSubmitSuccess}
+              />
             </Box>
             <Box my={2}>
               <Divider />
@@ -131,5 +135,7 @@ function LoginView() {
     </Page>
   );
 }
-
-export default LoginView;
+const mapStateToProps=state=>({
+  user:state.account.user
+})
+export default connect(mapStateToProps,null)(LoginView);

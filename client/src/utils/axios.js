@@ -8,9 +8,10 @@ import store from '../store';
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response.status === 401) {
-    //   store.dispatch(actions.authLogout());
-    }
+    // if (error.response.status === 401) {
+    //   console.log("error..",error)
+    // //   store.dispatch(actions.authLogout());
+    // }
     return Promise.reject(error);
   },
 );

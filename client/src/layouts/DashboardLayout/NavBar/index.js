@@ -228,7 +228,12 @@ const navConfig = [
         title: 'Register: Guest Protected',
         href: '/register',
         icon: ShieldIcon
-      }
+      },
+      {
+        title: 'Pending Accounts',
+        href: '/app/pending-account-approval',
+        icon: LockIcon
+      },
     ]
   },
   {

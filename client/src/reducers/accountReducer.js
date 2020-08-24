@@ -3,13 +3,20 @@ import produce from 'immer';
 import * as actionTypes from '../actionTypes'
 
 const initialState = {
-  user: null,
+  user: {},
   pendingAccounts:[],
   isUpdateAccount:false
 };
 
 const accountReducer = (state = initialState, action) => {
   switch (action.type) {
+
+    case actionTypes.LOGIN_REQUEST:{
+      return produce(state, (draft) => {
+        draft.user.data = {};
+        draft.user.error=''
+      });
+    }
 
     case actionTypes.LOGIN_SUCCESS: {
 
@@ -21,8 +28,13 @@ const accountReducer = (state = initialState, action) => {
 
     case actionTypes.LOGIN_FAILED: {
       return produce(state, (draft) => {
+        
+        console.log("state>...amu",state)
+        console.log("action>>",action.error)
+
         draft.user.data = {};
         draft.user.error=action.error
+        
       });
     }
 

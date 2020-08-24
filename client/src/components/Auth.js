@@ -10,7 +10,7 @@ import authService from 'src/services/authService';
 
 function Auth({ children }) {
   const dispatch = useDispatch();
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
     const initAuth = async () => {

@@ -49,17 +49,17 @@ class AuthService {
   })
 
   loginInWithToken = () => new Promise((resolve, reject) => {
-    axios.get('/api/account/me')
-      .then((response) => {
-        if (response.data.user) {
-          resolve(response.data.user);
-        } else {
-          reject(response.data.error);
-        }
-      })
-      .catch((error) => {
-        reject(error);
-      });
+    // axios.get('/api/account/me')
+    //   .then((response) => {
+    //     if (response.data.user) {
+    //       resolve(response.data.user);
+    //     } else {
+    //       reject(response.data.error);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     reject(error);
+    //   });
   })
 
   logout = () => {

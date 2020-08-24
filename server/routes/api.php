@@ -20,10 +20,12 @@ Route::group([
     'prefix' => 'v1/auth'
 ], function ($router) {
     Route::post('login', 'UserController@login');
-    Route::post('logout', 'Auth\LogoutController@logout');
-    Route::post('register', 'Auth\UserController@registerUser');
-    Route::post('forgot-password', 'Auth\ForgotPasswordController@email');
-    Route::post('password-reset', 'Auth\ResetPasswordController@reset');
-    Route::post('social-login', 'Auth\LoginController@socialLogin');
-
+    // Route::post('logout', 'Auth\LogoutController@logout');
+    Route::post('register', 'UserController@registerUser');
+    // Route::post('forgot-password', 'Auth\ForgotPasswordController@email');
+    // Route::post('password-reset', 'Auth\ResetPasswordController@reset');
+    // Route::post('social-login', 'Auth\LoginController@socialLogin');
 });
+Route::get('v1/auth/pending-accounts', 'UserController@getPendingAccounts');
+Route::post('v1/auth/update-user-account', 'UserController@updateAccountStatus');
+

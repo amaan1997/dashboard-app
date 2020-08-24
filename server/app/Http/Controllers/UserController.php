@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\UserRole;
+use Illuminate\Support\Facades\Validator;
+use App\User;
 use JWTAuth;
 use JWTAuthException;
+use Carbon\Carbon;
 use DB;
 
 
@@ -23,7 +24,8 @@ class UserController extends Controller
         $token = null;
         //$credentials = $request->only('email', 'password');
         try {
-            if (!$token = JWTAuth::attempt( ['email'=>$email, 'password'=>$password])) {
+            
+            if (!$token = JWTAuth::attempt( ['email'=>'asalheen1997@gmail.com','password'=>'amaan1997'])) {
                 return response()->json([
                     'response' => 'error',
                     'message' => 'Password or email is invalid',
@@ -49,39 +51,48 @@ class UserController extends Controller
             'role' => 'required|string',
         ]);
         if ($validator->fails()) {
-            return $this->responseUnprocessable($validator->errors());
+            $error='Invalid Input';
         }
-        try {
-
-            $user=new User();
-
-            $user->first_name=$request->firstName;
-            $user->last_name=$request->lastName;
-            $user->email=$request->email;
-            $user->password=Hash::make($request->password);
-            $user->role=$request->role;
-
-            if ($user->save())
-            {
-                $token = self::getToken($request->email, $request->password); // generate user token
-
-                $user->auth_token = $token; // update user token
-                $user->save();
-
-                return response()->json([
-                    'status' => 201,
-                    'success'=>true,
-                    'access_token'=>$token,
-                    'user'=>['name'=>$user->name,'email'=>$user->email,'role'=>$user->role,'auth_token'=>$token]
-                ]);
+        try {  
+            $errror='';
+            $status='';          
+            $is_user_exist=User::where('email',$request->email)->first();
+            if($is_user_exist){
+                $error='User already exist!';
             }
             else{
-                return response()->json([
-                    'status' => 401,
-                    'success'=>false,
-                    'error'=>'Could not register the user'
-                ]);
-            }
+                $user=new User();
+
+                $user->first_name=$request->firstName;
+                $user->last_name=$request->lastName;
+                $user->email=$request->email;
+                $user->password=Hash::make($request->password);
+                $user->role=$request->role;
+    
+                if ($user->save())
+                {
+                    $token = self::getToken($request->email, $request->password); // generate user token
+    
+                    $user->auth_token = $token; // update user token
+                    $user->update();
+                        
+                    return response()->json([
+                        'status' => 201,
+                        'success'=>true,
+                        'access_token'=>$token,
+                        'data'=>['firstName'=>$user->first_name,$user->last_name=>'last_name','email'=>$user->email,'role'=>$user->role]
+                    ]);
+                }
+                else{
+                  $error='Something went wrong!Please try again';
+                }
+        }
+        return response()->json([
+            'status' => $status,
+            'success'=>false,
+            'error'=>$error
+        ])->setStatusCode(400);  
+            
         } catch (Exception $e) {
             DB::rollback();
             return $this->responseServerError('Error creating user profile.');
@@ -95,28 +106,37 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->get()->first();
-        if ($user && Hash::check($request->password, $user->password)) // The passwords match...
-        {
-            $token = self::getToken($request->email, $request->password);
-            $user->auth_token = $token;
-            $user->save();
-
-            return response()->json([
-                'status' => 201,
-                'success'=>true,
-                'data'=>['name'=>$user->name,'email'=>$user->email,'role'=>$user->role,'auth_token'=>$token]
-            ]);
-        }
-        else 
-            return response()->json([
-                'status' => 401,
-                'success'=>false,
-                'data'=>'Invalid Login Credentials'
-            ]);
+        $user = User::where('email', $request->email)->first();
+            if ($user && Hash::check($request->password, $user->password)) // The passwords match...
+            {
+                if(is_null($user->email_verified_by)){
+                    return response()->json([
+                        'success'=>false,
+                        'error'=>'User Account not approved!'
+                    ])->setStatusCode(400);
+                }
+                else{
+                    $token = self::getToken($request->email, $request->password);
+                    $user->auth_token = $token;
+                    $user->save();
+        
+                    return response()->json([
+                        'success'=>true,
+                        'auth_token'=>$token,
+                        'user'=>['firstName'=>$user->first_name,'lastName'=>$user->last_name,'email'=>$user->email,'role'=>$user->role]
+                    ])->setStatusCode(200);
+                }  
+            }
+            else {
+                return response()->json([
+                    'success'=>false,
+                    'error'=>'Invalid Login Credentials'
+                ])->setStatusCode(400);
+        } 
     }
     public function getPendingAccounts(){
-        $pendingAccounts = User::where('email_verified_at', null)->get();
+        $pendingAccounts = User::select('first_name','last_name','email','role')->where('email_verified_at', null)->where('role','!=','admin')->get();
+
         return response()->json([
             'status' => 201,
             'success'=>true,
@@ -131,14 +151,14 @@ class UserController extends Controller
             'verifiedBy' =>'required'
         ]);
         if ($validator->fails()) {
-            return $this->responseUnprocessable($validator->errors());
+            // return $this->responseUnprocessable($validator->errors());
         }
         try{
             $user=User::where('email',$request->email)->first();
 
             if($request->status){
                 $user->email_verified_by=$request->verifiedBy;
-                $user->email_verified_at=\Carbon::now();
+                $user->email_verified_at=Carbon::now();
 
                 $user->update();
 
