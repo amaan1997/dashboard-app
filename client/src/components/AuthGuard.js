@@ -4,9 +4,8 @@ import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 function AuthGuard({ children }) {
-  const account = useSelector((state) => state.account);
-
-  if (!account.user) {
+  const access_token=localStorage.getItem('access_token');
+  if (!access_token) {
     return <Redirect to="/login" />;
   }
 

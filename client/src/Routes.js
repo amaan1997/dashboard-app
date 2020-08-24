@@ -30,7 +30,7 @@ const routesConfig = [
   },
   {
     exact: true,
-    guard: GuestGuard,
+    // guard: GuestGuard,
     path: '/login',
     component: lazy(() => import('src/views/auth/LoginView'))
   },
@@ -41,7 +41,7 @@ const routesConfig = [
   },
   {
     exact: true,
-    guard: GuestGuard,
+    // guard: GuestGuard,
     path: '/register',
     component: lazy(() => import('src/views/auth/RegisterView'))
   },
@@ -52,7 +52,7 @@ const routesConfig = [
   },
   {
     path: '/app',
-    guard: AuthGuard,
+    // guard: AuthGuard,
     layout: DashboardLayout,
     routes: [
       {
@@ -64,6 +64,11 @@ const routesConfig = [
         exact: true,
         path: '/app/account',
         component: lazy(() => import('src/views/pages/AccountView'))
+      },
+      {
+        exact: true,
+        path: '/app/pending-account-approval',
+        component: lazy(() => import('src/views/auth/PendingAccountApprovalView'))
       },
       {
         exact: true,

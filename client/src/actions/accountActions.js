@@ -1,31 +1,63 @@
 import axios from 'src/utils/axios';
-import authService from 'src/services/authService';
+import * as actionTypes from '../actionTypes';
 
-export const LOGIN_REQUEST = '@account/login-request';
-export const LOGIN_SUCCESS = '@account/login-success';
-export const LOGIN_FAILURE = '@account/login-failure';
 export const SILENT_LOGIN = '@account/silent-login';
 export const LOGOUT = '@account/logout';
-export const REGISTER = '@account/register';
 export const UPDATE_PROFILE = '@account/update-profile';
 
-export function login(email, password) {
+export function logout() {
   return async (dispatch) => {
-    try {
-      dispatch({ type: LOGIN_REQUEST });
+    localStorage.removeItem("access_token");
 
-      const user = await authService.loginWithEmailAndPassword(email, password);
+    dispatch({
+      type: actionTypes.LOGOUT_REQUEST
+    });
+  };
+}
+export function getPendingAccounts() {
+  return dispatch => {
+    return axios.get(`${actionTypes.API_URL}/auth/pending-accounts`)
+      .then(res => {
+        const records=res.data.pending_records
+        dispatch({
+          type: actionTypes.GET_PENDING_ACCOUNTS_SUCCESS,
+          res:records
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: actionTypes.GET_PENDING_ACCOUNTS_FAILED,
+          error
+        });
+    });
+  };
+}
+export function updateUserAccount(data) {
+  return (dispatch) => {
 
-      dispatch({
-        type: LOGIN_SUCCESS,
-        payload: {
-          user
-        }
-      });
-    } catch (error) {
-      dispatch({ type: LOGIN_FAILURE });
-      throw error;
-    }
+    return axios.post(`${actionTypes.API_URL}/auth/update-user-account`,data)
+      .then(res => {
+        dispatch({
+          type: actionTypes.UPDATE_USER_ACCOUNT_SUCCESS,
+          res
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: actionTypes.UPDATE_USER_ACCOUNT_FAILED,
+          error
+        });
+    });
+  };
+}
+export function updateProfile(update) {
+  const request = axios.post('/api/account/profile', { update });
+
+  return (dispatch) => {
+    request.then((response) => dispatch({
+      type: UPDATE_PROFILE,
+      payload: response.data
+    }));
   };
 }
 
@@ -36,29 +68,4 @@ export function setUserData(user) {
       user
     }
   });
-}
-
-export function logout() {
-  return async (dispatch) => {
-    authService.logout();
-
-    dispatch({
-      type: LOGOUT
-    });
-  };
-}
-
-export function register() {
-  return true;
-}
-
-export function updateProfile(update) {
-  const request = axios.post('/api/account/profile', { update });
-
-  return (dispatch) => {
-    request.then((response) => dispatch({
-      type: UPDATE_PROFILE,
-      payload: response.data
-    }));
-  };
 }
