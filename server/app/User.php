@@ -7,11 +7,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\SoftDeletes; 
 
 
 class User extends Authenticatable  implements JWTSubject
     {
     use Notifiable;
+    use SoftDeletes;
+
 
 
     /**
@@ -59,4 +62,9 @@ class User extends Authenticatable  implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function block()
+    {
+    return $this->hasOne(BlockedUser::class);
+    }
+   
 }

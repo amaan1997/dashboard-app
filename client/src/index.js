@@ -5,12 +5,14 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'react-quill/dist/quill.snow.css';
 import 'nprogress/nprogress.css';
 import 'src/assets/css/prism.css';
+import 'react-phone-number-input/style.css'
 import 'src/mixins/chartjs';
 import 'src/mixins/prismjs';
 import { enableES5 } from 'immer';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/es/integration/react';
 import * as serviceWorker from 'src/serviceWorker';
 import { SettingsProvider } from 'src/context/SettingsContext';
 import { configureStore } from 'src/store';
@@ -19,14 +21,16 @@ import App from 'src/App';
 
 enableES5();
 
-const store = configureStore();
+const {store,persistor} = configureStore();
 const settings = restoreSettings();
 
 ReactDOM.render(
   <Provider store={store}>
-    <SettingsProvider settings={settings}>
-      <App />
-    </SettingsProvider>
+    <PersistGate persistor={persistor}>
+      <SettingsProvider settings={settings}>
+        <App />
+      </SettingsProvider>
+    </PersistGate>
   </Provider>,
   document.getElementById('root')
 );

@@ -20,12 +20,18 @@ Route::group([
     'prefix' => 'v1/auth'
 ], function ($router) {
     Route::post('login', 'UserController@login');
-    // Route::post('logout', 'Auth\LogoutController@logout');
     Route::post('register', 'UserController@registerUser');
-    // Route::post('forgot-password', 'Auth\ForgotPasswordController@email');
-    // Route::post('password-reset', 'Auth\ResetPasswordController@reset');
-    // Route::post('social-login', 'Auth\LoginController@socialLogin');
+    Route::get('pending-accounts', 'UserController@getPendingAccounts');
+    Route::post('update-user-account', 'UserController@updateAccountStatus');
+    Route::post('deactivate-user', 'UserController@deactivateUser');
+    Route::post('block-user', 'UserController@updateBlockStatus');
+    Route::get('get-all-users', 'UserController@getAllUsers');
 });
-Route::get('v1/auth/pending-accounts', 'UserController@getPendingAccounts');
-Route::post('v1/auth/update-user-account', 'UserController@updateAccountStatus');
+Route::group([
+    'prefix' => 'v1'
+], function ($router) {
+    Route::post('upload-profile-image','UserProfileController@uploadImage');
+    Route::get('get-user-profile','UserProfileController@index')->middleware('jwt-auth');
+    Route::post('update-user-profile','UserProfileController@store')->middleware('jwt-auth');
+});
 

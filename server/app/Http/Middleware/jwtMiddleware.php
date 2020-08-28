@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 use Closure;
 use JWTAuth;
 use Exception;
+use App\User;
 
 class jwtMiddleware
 {
@@ -17,7 +18,9 @@ class jwtMiddleware
     public function handle($request, Closure $next)
     {
         try {
-            $user = JWTAuth::toUser($request->input('token'));
+            $user=User::where('auth_token',$request->bearerToken())->first();
+            $request->user_id=$user->id;
+            return $next($request);
         } catch (Exception $e) {
             if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
                 return $next($request);

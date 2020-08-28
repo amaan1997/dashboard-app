@@ -7,6 +7,7 @@
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
     </head>
     <body>
+        <h3>Hi {{$name}},</h3>
         <h5>
             Thank you for your account submission.Your account has been approved.Please login with your credentials.
         </h5>        

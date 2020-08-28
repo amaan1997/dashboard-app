@@ -72,6 +72,11 @@ const routesConfig = [
       },
       {
         exact: true,
+        path: '/app/manage-users',
+        component: lazy(() => import('src/views/auth/ManageUsers'))
+      },
+      {
+        exact: true,
         path: '/app/reports/dashboard',
         component: lazy(() => import('src/views/reports/DashboardView'))
       },

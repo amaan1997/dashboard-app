@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
+import { get } from 'lodash';
 import { Formik } from 'formik';
 import { useSnackbar } from 'notistack';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import {
   Box,
   Button,
@@ -17,58 +19,101 @@ import {
   Switch,
   TextField,
   Typography,
-  makeStyles
+  makeStyles,
+  RadioGroup,
+  Radio,
+  FormControlLabel
 } from '@material-ui/core';
-import { updateProfile } from 'src/actions/accountActions';
-
-const stateOptions = ['Alabama', 'New York', 'San Francisco'];
+import { useSelector } from 'react-redux';
+import { updateUserProfile,getUserProfile } from 'src/actions/profileActions';
+import { getCountries, getStates } from 'src/utils/data';
 
 const useStyles = makeStyles(() => ({
-  root: {}
+  root: {},
+  genderDiv: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
+  error:{
+    fontSize:14,
+    color:'red',
+    paddingLeft:40
+  }
 }));
 
-function GeneralSettings({ user, className, ...rest }) {
+function GeneralSettings({ className, ...rest }) {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  const user = useSelector(state => state.account.user);
+  const userProfile = useSelector(state => state.profile.userProfile);
+
+  const [country, setCountry] = useState(userProfile.country ? userProfile.country : 'Canada');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumberError,setPhoneNumberError]=useState(false)
+  const countryOptions = getCountries();
+  let stateOptions = getStates(country);
+
+  const handleCountryChange = event => {
+    const selectedCountry = event.target.value;
+    setCountry(selectedCountry);
+  };
+
+  let userInfo = {};
+  if (user && Object.keys(user).length > 0) {
+    userInfo = get(user, 'data', {});
+  }
+
+  useEffect(()=>{
+    dispatch(getUserProfile())
+  },[])
 
   return (
     <Formik
       enableReinitialize
       initialValues={{
-        canHire: user.canHire,
-        country: user.country,
         email: user.email,
         firstName: user.firstName,
-        isPublic: user.isPublic,
         lastName: user.lastName,
-        phone: user.phone,
-        state: user.state,
+        state: userProfile.state ? userProfile.state : 'Alabama',
+        gender: userProfile.gender ? userProfile.gender : 'male',
+        address: userProfile.address ? userProfile.address : ''
       }}
       validationSchema={Yup.object().shape({
-        country: Yup.string().max(255).required('Country is required'),
-        email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-        firstName: Yup.string().max(255).required('First name is required'),
-        lastName: Yup.string().max(255).required('Last name is required')
+        address: Yup.string()
+          .max(255)
+          .required('Address is required'),
       })}
-      onSubmit={async (values, {
-        resetForm,
-        setErrors,
-        setStatus,
-        setSubmitting
-      }) => {
-        try {
-          await dispatch(updateProfile(values));
-          resetForm();
-          setStatus({ success: true });
-          enqueueSnackbar('Profile updated', {
-            variant: 'success'
-          });
-        } catch (error) {
-          setStatus({ success: false });
-          setErrors({ submit: error.message });
-        } finally {
-          setSubmitting(false);
+      onSubmit={async (
+        values,
+        { resetForm, setErrors, setStatus, setSubmitting }
+      ) => {
+        if(isValidPhoneNumber(phoneNumber)){
+          const {gender,address,state}=values;
+        
+          const data={
+            gender,
+            address,
+            state,
+            country,
+            mobile:phoneNumber,
+            profile_image:userProfile.profileImage
+          }
+  
+          try {
+            setPhoneNumberError(false)
+            await dispatch(updateUserProfile(data));
+            setStatus({ success: true });
+            enqueueSnackbar('Profile updated', {
+              variant: 'success'
+            });
+          } catch (error) {
+            setStatus({ success: false });
+            setErrors({ submit: 'Invalid Inputs' });
+          }
+        }
+        else{
+          setPhoneNumberError(true)
         }
       }}
     >
@@ -82,96 +127,92 @@ function GeneralSettings({ user, className, ...rest }) {
         values
       }) => (
         <form onSubmit={handleSubmit}>
-          <Card
-            className={clsx(classes.root, className)}
-            {...rest}
-          >
+          <Card className={clsx(classes.root, className)} {...rest}>
             <CardHeader title="Profile" />
             <Divider />
             <CardContent>
-              <Grid
-                container
-                spacing={4}
-              >
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
+              <Grid container spacing={4}>
+                <Grid item md={6} xs={12}>
                   <TextField
                     error={Boolean(touched.firstName && errors.firstName)}
                     fullWidth
                     helperText={touched.firstName && errors.firstName}
-                    label="First Name"
-                    name="firstName"
+                    label="Full Name"
+                    name="fullName"
                     onBlur={handleBlur}
-                    onChange={handleChange}
-                    required
-                    type="firstName"
-                    value={values.firstName}
+                    disabled
+                    value={`${userInfo.firstName}${userInfo.lastName}`}
                     variant="outlined"
                   />
                 </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
-                  <TextField
-                    error={Boolean(touched.lastName && errors.lastName)}
-                    fullWidth
-                    helperText={touched.lastName && errors.lastName}
-                    label="Last Name"
-                    name="lastName"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    required
-                    type="lastName"
-                    value={values.lastName}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
+                <Grid item md={6} xs={12}>
                   <TextField
                     error={Boolean(touched.email && errors.email)}
                     fullWidth
-                    helperText={touched.email && errors.email ? errors.email : 'We will use this email to contact you'}
+                    helperText={touched.email && errors.email}
                     label="Email Address"
                     name="email"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    required
-                    type="email"
-                    value={values.email}
+                    disabled
+                    value={userInfo.email}
                     variant="outlined"
                   />
                 </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
+
+                <Grid item md={6} xs={12}>
+                  <PhoneInput
+                    international
+                    placeholder="Phone Number"
+                    value={userProfile.mobile ? userProfile.mobile : phoneNumber}
+                    onChange={setPhoneNumber}
+                  />
+                  {
+                    phoneNumberError &&
+                    <span className={classes.error}>Phone number is not valid</span>
+                  }
+                </Grid>
+                <Grid item md={6} xs={12}>
+                  <RadioGroup
+                    aria-label="gender"
+                    name="gender"
+                    value={values.gender}
+                    onChange={handleChange}
+                  >
+                    <Typography variant="body2" color="textPrimary">
+                      Gender
+                    </Typography>
+                    <div className={classes.genderDiv}>
+                      <FormControlLabel
+                        value="female"
+                        control={<Radio />}
+                        label="Female"
+                      />
+                      <FormControlLabel
+                        value="male"
+                        control={<Radio />}
+                        label="Male"
+                      />
+                      <FormControlLabel
+                        value="other"
+                        control={<Radio />}
+                        label="Other"
+                      />
+                    </div>
+                  </RadioGroup>
+                </Grid>
+                <Grid item md={12} xs={12}>
                   <TextField
-                    error={Boolean(touched.phone && errors.phone)}
+                    error={Boolean(touched.address && errors.address)}
                     fullWidth
-                    helperText={touched.phone && errors.phone}
-                    label="Phone Number"
-                    name="phone"
+                    helperText={touched.address && errors.address}
+                    label="Full Address"
+                    name="address"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.phone}
+                    value={values.address}
                     variant="outlined"
                   />
                 </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
+                <Grid item md={6} xs={12}>
                   <TextField
                     fullWidth
                     label="Select State"
@@ -182,100 +223,41 @@ function GeneralSettings({ user, className, ...rest }) {
                     value={values.state}
                     variant="outlined"
                   >
-                    {stateOptions.map((state) => (
-                      <option
-                        key={state}
-                        value={state}
-                      >
+                    {stateOptions.map(state => (
+                      <option key={state} value={state}>
                         {state}
                       </option>
                     ))}
                   </TextField>
                 </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
+                <Grid item md={6} xs={12}>
                   <TextField
-                    error={Boolean(touched.country && errors.country)}
                     fullWidth
-                    helperText={touched.country && errors.country}
-                    label="Country"
+                    label="Select Country"
                     name="country"
+                    onChange={handleCountryChange}
                     onBlur={handleBlur}
-                    onChange={handleChange}
-                    required
-                    type="country"
-                    value={values.country}
+                    select
+                    SelectProps={{ native: true }}
+                    value={country}
                     variant="outlined"
-                  />
-                </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
-                  <Typography
-                    variant="h6"
-                    color="textPrimary"
                   >
-                    Make Contact Info Public
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                  >
-                    Means that anyone viewing your profile will be able to see your
-                    contacts details
-                  </Typography>
-                  <Switch
-                    checked={values.isPublic}
-                    edge="start"
-                    name="isPublic"
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid
-                  item
-                  md={6}
-                  xs={12}
-                >
-                  <Typography
-                    variant="h6"
-                    color="textPrimary"
-                  >
-                    Available to hire
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                  >
-                    Toggling this will let your teammates know that you are available
-                    for acquiring new projects
-                  </Typography>
-                  <Switch
-                    checked={values.canHire}
-                    edge="start"
-                    name="canHire"
-                    onChange={handleChange}
-                  />
+                    {countryOptions.map(country => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </TextField>
                 </Grid>
               </Grid>
               {errors.submit && (
                 <Box mt={3}>
-                  <FormHelperText error>
-                    {errors.submit}
-                  </FormHelperText>
+                  <FormHelperText error>{errors.submit}</FormHelperText>
                 </Box>
               )}
             </CardContent>
             <Divider />
-            <Box
-              p={2}
-              display="flex"
-              justifyContent="flex-end"
-            >
+            <Box p={2} display="flex" justifyContent="flex-end">
               <Button
                 color="secondary"
                 disabled={isSubmitting}

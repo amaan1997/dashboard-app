@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import {get} from 'lodash'
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import PropTypes from 'prop-types';
 import {
@@ -42,6 +43,7 @@ import {
   Users as UsersIcon
 } from 'react-feather';
 import Logo from 'src/components/Logo';
+import {userRoles} from 'src/utils/data'
 import NavItem from './NavItem';
 
 const navConfig = [
@@ -234,6 +236,11 @@ const navConfig = [
         href: '/app/pending-account-approval',
         icon: LockIcon
       },
+      {
+        title: 'Manage Users',
+        href: '/app/manage-users',
+        icon: UserPlusIcon
+      },
     ]
   },
   {
@@ -383,6 +390,11 @@ function NavBar({ openMobile, onMobileClose, }) {
   const location = useLocation();
   const { user } = useSelector((state) => state.account);
 
+  let userInfo={}
+  if(user && Object.keys(user).length > 0){
+    userInfo=get(user,'data',{})
+  }
+  console.log("user>>>",user)
   useEffect(() => {
     if (openMobile && onMobileClose) {
       onMobileClose();
@@ -432,13 +444,16 @@ function NavBar({ openMobile, onMobileClose, }) {
               color="textPrimary"
               underline="none"
             >
-              {`${user.firstName} ${user.lastName}`}
+              {`${userInfo.firstName} ${userInfo.lastName}`}
             </Link>
             <Typography
               variant="body2"
               color="textSecondary"
             >
-              {user.bio}
+              {userRoles.map(role=>{
+                if(role.value===userInfo.role){
+                  return role.label
+              }})}     
             </Typography>
           </Box>
         </Box>

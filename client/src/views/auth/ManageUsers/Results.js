@@ -18,11 +18,15 @@ import {
   TableRow,
   TextField,
   Typography,
-  makeStyles
+  makeStyles,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Grid,
+  DialogContent
 } from '@material-ui/core';
-import {
-  Search as SearchIcon
-} from 'react-feather';
+import { Search as SearchIcon } from 'react-feather';
 import { userRoles } from 'src/utils/data';
 
 const useStyles = makeStyles(theme => ({
@@ -53,35 +57,42 @@ const useStyles = makeStyles(theme => ({
   approveBtn: {
     marginRight: theme.spacing(1)
   },
-  noRecords:{
-    textAlign:'right',
-    margin:20
+  headingText:{
+    marginBottom: theme.spacing(2)
   }
 }));
 
-function Results({ className, accounts, updateStatus,pageChange,limitChange,page,limit, ...rest }) {
+function Results({ className, userList, deactivateUser,updateUserBlockStatus, ...rest }) {
   const classes = useStyles();
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
   const [query, setQuery] = useState('');
+  const [isDialogOpen, setDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState({});
+  const [blockReason, setBlockReason] = useState('');
 
-  const updateUserStatus = (email, status) => {
-    const data = {
-      email: email,
-      status: status === 'approve' ? true : false,
-      verifiedBy: 'iliasvinin@gmail.com'
-    };
-    updateStatus(data);
-  };
   const handlePageChange = (event, newPage) => {
-    pageChange(newPage)
+    setPage(newPage);
   };
 
   const handleLimitChange = event => {
-    limitChange(event.target.value)
+    setLimit(event.target.value);
   };
-  const handleQueryChange=(event)=>{
-    setQuery(query)
+  const handleQueryChange = event => {
+    setQuery(query);
+  };
+  const deactivateUserHandler = userEmail => {
+    deactivateUser(userEmail);
+  };
+  const handleChange = (e) => {
+    setBlockReason(e.target.value);
+  };
+  const updateUserBlock=()=>{
+   const {email}=selectedUser;
+   const blockStatus=!selectedUser.blockStatus
+   updateUserBlockStatus(email,blockStatus,blockReason)
+   setDialog(false);
   }
-  console.log("accounts",accounts)
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
@@ -110,63 +121,104 @@ function Results({ className, accounts, updateStatus,pageChange,limitChange,page
                 <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Role</TableCell>
+                <TableCell>Block Status</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {accounts.length > 0 ? accounts.map((account, index) => {
+              {userList.map((user, index) => {
                 return (
-                  <TableRow
-                    hover
-                    key={index + 1}
-                  >
+                  <TableRow hover key={index + 1}>
                     <TableCell>
                       <Box display="flex" alignItems="center">
                         <Typography variant="body2" color="textSecondary">
-                          {account.first_name + ' ' + account.last_name}
+                          {user.firstName + ' ' + user.lastName}
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell>{account.email}</TableCell>
+                    <TableCell>{user.email}</TableCell>
                     <TableCell>
                       {userRoles.map(
-                        role => role.value === account.role && role.label
+                        role => role.value === user.role && role.label
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {user.blockStatus ? (
+                        <Chip label="Blocked" color="secondary" />
+                      ) : (
+                        <Chip label="Not Blocked" color="primary" />
                       )}
                     </TableCell>
 
                     <TableCell align="right">
                       <Button
-                        color="secondary"
+                        color="primary"
                         size="small"
                         type="submit"
                         variant="contained"
                         className={classes.approveBtn}
-                        onClick={() =>
-                          updateUserStatus(account.email, 'approve')
-                        }
+                        onClick={() => deactivateUserHandler(user.email)}
                       >
-                        Approve
+                        Deactivate user
                       </Button>
                       <Button
                         size="small"
                         type="submit"
-                        onClick={() =>
-                          updateUserStatus(account.email, 'reject')
-                        }
+                        variant="contained"
+                        onClick={() => {
+                          setDialog(true);
+                          setSelectedUser(user);
+                        }}
                       >
-                        Reject
+                        {user.blockStatus ? 'Unblock' : 'Block'}
                       </Button>
                     </TableCell>
                   </TableRow>
                 );
-              }) : <h3 className={classes.noRecords}>No Records Found!</h3>}
+              })}
             </TableBody>
           </Table>
+          <Dialog
+            onClose={() => {
+              setDialog(false);
+            }}
+            aria-labelledby="simple-dialog-title"
+            open={isDialogOpen}
+          >
+            <DialogTitle id="simple-dialog-title">{`${
+              selectedUser.blockStatus ? 'Unblock' : 'Block'
+            } User`}</DialogTitle>
+            <DialogContent>
+              <Typography className={classes.headingText}>
+                Are you sure want to{' '}
+                {`${selectedUser.blockStatus ? 'Unblock' : 'Block'} ${
+                  selectedUser.email
+                }`}
+              </Typography>
+              <Grid item md={12} xs={12}>
+                <TextField
+                  fullWidth
+                  label={selectedUser.blockStatus ? 'Unblock Reason' : 'Block Reason'}
+                  name="blockReason"
+                  onChange={handleChange}
+                  variant="outlined"
+                />
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button  color="primary" onClick={updateUserBlock}>
+                OK
+              </Button>
+              <Button onClick={()=>{setDialog(false)}} color="primary">
+                Cancel
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </PerfectScrollbar>
       <TablePagination
         component="div"
-        count={accounts.length}
+        count={userList.length}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
         page={page}
@@ -180,9 +232,8 @@ function Results({ className, accounts, updateStatus,pageChange,limitChange,page
 Results.propTypes = {
   className: PropTypes.string,
   customers: PropTypes.array,
-  updateStatus: PropTypes.func.isRequired,
-  pageChange:PropTypes.func.isRequired,
-  limitChange:PropTypes.func.isRequired
+  updateUserBlockStatus: PropTypes.func.isRequired,
+  deactivateUser: PropTypes.func.isRequired
 };
 
 Results.defaultProps = {

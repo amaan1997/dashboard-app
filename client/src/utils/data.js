@@ -1,3 +1,5 @@
+import countries from './countries'
+
 const userRoles = [
   { value: 'lead_generator', label: 'Lead Generator' },
   { value: 'client_care_specialist', label: 'Client Care Specialist' },
@@ -7,5 +9,30 @@ const userRoles = [
   { value: 'sales_manager', label: 'Sales Manager' },
   { value: 'Call_agent_supervisor', label: 'Call Agent Supervisor' }
 ];
+const getCountries=()=>{
+  let result=[];
+  countries.map(el=>{
+    result.push(el.country)
+  })
+  return result;
+}
+const getStates=selectedCountry=>{
+  let result=[];
+  if(selectedCountry){
+    countries.map(el=>{
+      if(el.country===selectedCountry){
+        result=[...el.states]
+      }
+    })
+  }
+  else{
+    countries.map(el=>{
+      if(el.country==='Canada'){
+        result=[...el.states]
+      }
+    })
+  }
+  return result;
+}
 
-export {userRoles}
+export {userRoles,getStates,getCountries}

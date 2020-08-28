@@ -1,6 +1,7 @@
-import React from 'react';
+import React,{useState,useRef} from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import {useDispatch} from 'react-redux';
 import {
   Avatar,
   Box,
@@ -11,6 +12,10 @@ import {
   Typography,
   makeStyles
 } from '@material-ui/core';
+import {get} from 'lodash'
+import ImageUploader from 'src/components/ImageUploader/Avatar'
+import {userRoles} from 'src/utils/data'
+import {uploadProfileImage} from 'src/actions/profileActions'
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -18,13 +23,39 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1)
   },
   avatar: {
-    height: 100,
-    width: 100
+    height: 120,
+    width: 200
   }
 }));
 
 function ProfileDetails({ user, className, ...rest }) {
+  
   const classes = useStyles();
+  const dispatch = useDispatch();
+
+
+  const [profileImage,setProfileImage]=useState("");
+  const uploaderRef=useRef(null);
+
+  let userInfo = {};
+  if (user && Object.keys(user).length > 0) {
+    userInfo = get(user, 'data', {});
+  }
+
+  const onImageChange=(e)=>{
+    const image = e.target.files[0];
+
+    const data = {
+      image: image
+    };
+    let reader = new FileReader();
+
+    reader.onloadend = () => {
+      setProfileImage(reader.result);
+    };
+    reader.readAsDataURL(e.target.files[0]);
+    dispatch(uploadProfileImage(data))
+}
 
   return (
     <Card
@@ -38,30 +69,44 @@ function ProfileDetails({ user, className, ...rest }) {
           flexDirection="column"
           textAlign="center"
         >
-          <Avatar
+          <ImageUploader
+                size={120}
+              >
+                {profileImage ? (
+                 <ImageUploader.Preview src={profileImage} /> 
+                 ) : <Avatar
+                 className={classes.avatar}
+                 src="/broken-image.jpg"
+                 onClick={()=>{uploaderRef.click()}}
+               />}
+                <ImageUploader.Uploader
+                  fileType={("image/jpg", "image.png", "image.jpeg")}
+                  ref={uploaderRef}
+                  onChange={onImageChange}
+                />
+              </ImageUploader>
+          {/* <Avatar
             className={classes.avatar}
             src={user.avatar}
-          />
+          /> */}
           <Typography
             className={classes.name}
             gutterBottom
             variant="h3"
             color="textPrimary"
           >
-            {`${user.firstName} ${user.lastName}`}
+            {`${userInfo.firstName} ${userInfo.lastName}`}
           </Typography>
           <Typography
             color="textPrimary"
             variant="body1"
           >
-            {`${user.state}, ${user.country}`}
+            {userRoles.map(role=>{
+                if(role.value===userInfo.role){
+                  return role.label
+              }})}     
           </Typography>
-          <Typography
-            color="textSecondary"
-            variant="body2"
-          >
-            {user.timezone}
-          </Typography>
+          
         </Box>
       </CardContent>
       <CardActions>

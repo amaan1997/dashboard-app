@@ -14,9 +14,12 @@ export function logout() {
     });
   };
 }
-export function getPendingAccounts() {
+export function getPendingAccounts(data) {
+  console.log("data>>",data)
   return dispatch => {
-    return axios.get(`${actionTypes.API_URL}/auth/pending-accounts`)
+    return axios.get(`${actionTypes.API_URL}/auth/pending-accounts`,{
+      params:data
+    })
       .then(res => {
         const records=res.data.pending_records
         dispatch({
@@ -50,6 +53,41 @@ export function updateUserAccount(data) {
     });
   };
 }
+export function getAllUsers(data) {
+  return (dispatch) => {
+    return axios.get(`${actionTypes.API_URL}/auth/get-all-users`,{params:data})
+      .then(res => {
+        const data=res.data
+        dispatch({
+          type: actionTypes.GET_ALL_USERS_SUCCESS,
+          res:data
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: actionTypes.GET_ALL_USERS_FAILED,
+          error
+        });
+    });
+  };
+}
+// export function deactivateUser(data) {
+//   return (dispatch) => {
+//     return axios.post(`${actionTypes.API_URL}/auth/deactivate-user`,data)
+//       .then(res => {
+//         dispatch({
+//           type: actionTypes.DEACTIVATE_USER_SUCCESS,
+//           res:res.data
+//         });
+//       })
+//       .catch(error => {
+//         dispatch({
+//           type: actionTypes.DEACTIVATE_USER_FAILED,
+//           error:error.response.data
+//         });
+//     });
+//   };
+// }
 export function updateProfile(update) {
   const request = axios.post('/api/account/profile', { update });
 

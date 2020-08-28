@@ -5,14 +5,16 @@ import notificationsReducer from './notificationsReducer';
 import chatReducer from './chatReducer';
 import mailReducer from './mailReducer';
 import kanbanReducer from './kanbanReducer';
+import profileReducer from './profileReducer'
 
-const rootReducer = combineReducers({
+const rootReducer =(history)=> combineReducers({
   account: accountReducer,
   notifications: notificationsReducer,
   chat: chatReducer,
   mail: mailReducer,
   kanban: kanbanReducer,
-  form: formReducer
+  form: formReducer,
+  profile:profileReducer
 });
 
 export default rootReducer;
