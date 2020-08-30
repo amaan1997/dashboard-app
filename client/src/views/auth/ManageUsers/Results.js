@@ -122,6 +122,7 @@ function Results({ className, userList, deactivateUser,updateUserBlockStatus, ..
                 <TableCell>Email</TableCell>
                 <TableCell>Role</TableCell>
                 <TableCell>Block Status</TableCell>
+                <TableCell>Block Reason</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -148,6 +149,9 @@ function Results({ className, userList, deactivateUser,updateUserBlockStatus, ..
                       ) : (
                         <Chip label="Not Blocked" color="primary" />
                       )}
+                    </TableCell>
+                    <TableCell>
+                      {user.blockReason ? user.blockReason : 'NA'}
                     </TableCell>
 
                     <TableCell align="right">

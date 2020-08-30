@@ -105,6 +105,18 @@ const accountReducer = (state = initialState, action) => {
         draft.deactivateUserRes = action.error;
       });
     }
+    case actionTypes.UPDATE_BLOCK_STATUS_SUCCESS:{
+      return produce(state, (draft) => {
+        draft.updateBlockStatus = action.res;
+      });
+    }
+    case actionTypes.UPDATE_BLOCK_STATUS_FAILED:{
+      return produce(state, (draft) => {
+        draft.updateBlockStatus = action.error;
+      });
+    }
+
+    
 
     default: {
       return state;

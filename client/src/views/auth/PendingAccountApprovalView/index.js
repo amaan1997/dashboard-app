@@ -51,8 +51,8 @@ import Results from './Results';
 
   
     const updateStatusHandler=async(data)=>{
-        await updateAccount(data)
-        // await getPendingAccounts()
+        await updateAccount(data);
+        await getPendingAccounts()
     }
     const changePageHandler=(page)=>{
       setPage(page)

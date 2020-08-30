@@ -193,7 +193,7 @@ class UserController extends Controller
                 $user->delete();
                 $response='User Account Rejected successfully!';
             }
-            Mail::to("asalheen1997@gmail.com")->send(new RegisterationMail($request->status,$name));
+            Mail::to("asalheen1997@gmail.com")->queue(new RegisterationMail($request->status,$name));
 
             return response()->json([
                 'success' =>true,
@@ -232,7 +232,8 @@ class UserController extends Controller
             $res->email=$user->email;
             $res->role=$user->role;
             $res->blockStatus=!empty($blockedUser) && $blockedUser->block_status==1 ? true :false;
-            
+            $res->blockReason=!empty($blockedUser) && $blockedUser->block_reason ? $blockedUser->block_reason :'';
+
             array_push($response,$res);
         }
         return response()->json([
@@ -240,7 +241,7 @@ class UserController extends Controller
             'data'=>$response
         ])->setStatusCode(200);
     }
-public function deactivateUser(Request $request){
+    public function deactivateUser(Request $request){
     if($request->role !=='admin'){
         return response()->json([
             'success' =>false,

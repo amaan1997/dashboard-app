@@ -34,7 +34,7 @@ function Account() {
   const history = useHistory();
   const ref = useRef(null);
   const dispatch = useDispatch();
-  const account = useSelector((state) => state.account);
+  const user = useSelector((state) => state.account.user);
   const { enqueueSnackbar } = useSnackbar();
   const [isOpen, setOpen] = useState(false);
 
@@ -70,14 +70,14 @@ function Account() {
         <Avatar
           alt="User"
           className={classes.avatar}
-          src={account.user.avatar}
+          // src={account.user.avatar}
         />
         <Hidden smDown>
           <Typography
             variant="h6"
             color="inherit"
           >
-            {`${account.user.firstName} ${account.user.lastName}`}
+            {`${user.data.firstName} ${user.data.lastName}`}
           </Typography>
         </Hidden>
       </Box>

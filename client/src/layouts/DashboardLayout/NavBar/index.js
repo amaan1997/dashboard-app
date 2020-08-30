@@ -402,6 +402,12 @@ function NavBar({ openMobile, onMobileClose, }) {
     // eslint-disable-next-line
   }, [location.pathname]);
 
+  const userRole='admin'
+  userRoles.map(role=>{
+    if(role.value===userInfo.role){
+      userRole=role.label
+  }
+})
   const content = (
     <Box
       height="100%"
@@ -450,10 +456,7 @@ function NavBar({ openMobile, onMobileClose, }) {
               variant="body2"
               color="textSecondary"
             >
-              {userRoles.map(role=>{
-                if(role.value===userInfo.role){
-                  return role.label
-              }})}     
+              {userRole}
             </Typography>
           </Box>
         </Box>

@@ -47,6 +47,7 @@ function GeneralSettings({ className, ...rest }) {
   const { enqueueSnackbar } = useSnackbar();
   const user = useSelector(state => state.account.user);
   const userProfile = useSelector(state => state.profile.userProfile);
+  const updateProfile = useSelector(state => state.profile.updateProfile);
 
   const [country, setCountry] = useState(userProfile.country ? userProfile.country : 'Canada');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -54,6 +55,7 @@ function GeneralSettings({ className, ...rest }) {
   const countryOptions = getCountries();
   let stateOptions = getStates(country);
 
+  console.log("updateProfile1",updateProfile)
   const handleCountryChange = event => {
     const selectedCountry = event.target.value;
     setCountry(selectedCountry);
@@ -95,7 +97,7 @@ function GeneralSettings({ className, ...rest }) {
             gender,
             address,
             state,
-            country,
+            // country,
             mobile:phoneNumber,
             profile_image:userProfile.profileImage
           }
@@ -103,11 +105,14 @@ function GeneralSettings({ className, ...rest }) {
           try {
             setPhoneNumberError(false)
             await dispatch(updateUserProfile(data));
+            console.log("then",updateProfile)
             setStatus({ success: true });
             enqueueSnackbar('Profile updated', {
               variant: 'success'
             });
           } catch (error) {
+            console.log("catch",error.response.data)
+
             setStatus({ success: false });
             setErrors({ submit: 'Invalid Inputs' });
           }

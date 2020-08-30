@@ -45,8 +45,8 @@ export function getUserProfile() {
     };
   }
 export function updateUserProfile(data) {
-    return dispatch => {
-      return axios
+    return (dispatch) => {
+      return  axios
         .post(`${actionTypes.API_URL}/update-user-profile`, data)
         .then(result => {
           dispatch({
@@ -59,6 +59,7 @@ export function updateUserProfile(data) {
             type: actionTypes.UPDATE_PROFILE_FAILED,
             error
           });
+          throw error;
         });
     };
   }

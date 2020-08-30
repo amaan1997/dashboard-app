@@ -6,14 +6,7 @@ import { Box, Container, makeStyles } from '@material-ui/core';
 import { get } from 'lodash';
 import Page from 'src/components/Page';
 import Header from './Header';
-import {
-  getPendingAccounts,
-  updateUserAccount,
-  deactivateUser
-} from 'src/actions/accountActions';
-import axios from 'src/utils/axios'
-import { getAllUsers } from 'src/actions/accountActions';
-import {API_URL} from 'src/actionTypes'
+import { getAllUsers,deactivateUser,updateBlockStatus} from 'src/actions/accountActions';
 import Results from './Results';
 
 const useStyles = makeStyles(theme => ({
@@ -25,7 +18,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function ManageUsers({ deactivateUserRes }) {
+function ManageUsers({ }) {
   const classes = useStyles();
 
   const user = useSelector(state => state.account.user);
@@ -39,50 +32,46 @@ function ManageUsers({ deactivateUserRes }) {
     userInfo = get(user, 'data', {});
   }
 
-  const deactivateUserHandler =  (userEmail) => {
+  const deactivateUserHandler =  async (userEmail) => {
     const data = {
       email: userEmail,
       role: userInfo.role ? userInfo.role : ''
     };
-      axios.post(`${API_URL}/auth/deactivate-user`,data)
-      .then(()=>{
-        enqueueSnackbar('User Status Updated Successfully!', {
-            variant: 'success'
-        });
-        dispatch(getAllUsers({role:userInfo.role}));
-      })
-      .catch(err=>{
-        const error = err.response.data.data
-          ? deactivateUserRes.data
-          : 'Unable to deactivate the user!';
-        enqueueSnackbar(error, {
-          variant: 'error'
-        });
-      })
+
+    try{
+      await dispatch(deactivateUser(data))
+      enqueueSnackbar('User Deactivated Successfully!', {
+        variant: 'success'
+    });
+      dispatch(getAllUsers({role:userInfo.role}));
+    }
+    catch(err){
+      let error=err ? err : 'Unable to deactivate the user!'
+      enqueueSnackbar(error, {
+        variant: 'error'
+      });
+    }
   };
-  const updateUserBlockStatusHandler=(email,blockStatus,blockReason)=>{
-    console.log("data>>>",email+ '...'+blockReason)
+  const updateUserBlockStatusHandler=async(email,blockStatus,blockReason)=>{
     const data={
       role:userInfo.role ? userInfo.role : '',
       email:email,
       blockStatus:blockStatus,
       blockReason:blockReason
     }
-    axios.post(`${API_URL}/auth/block-user`,data)
-      .then(()=>{
-        enqueueSnackbar('User Deactivated Successfully!', {
-            variant: 'success'
-        });
-        dispatch(getAllUsers({role:userInfo.role}));
-      })
-      .catch(err=>{
-        const error = err.response.data.data
-          ? deactivateUserRes.data
-          : 'Unable to block/unblock the user!';
-        enqueueSnackbar(error, {
-          variant: 'error'
-        });
-      })
+    try{
+      await dispatch(updateBlockStatus(data))
+      enqueueSnackbar('User Status Updated Successfully!', {
+        variant: 'success'
+    });
+      dispatch(getAllUsers({role:userInfo.role}));
+    }
+    catch(err){
+      let error=err ? err : 'Unable to update the status!'
+      enqueueSnackbar(error, {
+        variant: 'error'
+      });
+    }
   }
   useEffect(() => {
     const data = {
@@ -90,8 +79,6 @@ function ManageUsers({ deactivateUserRes }) {
     };
     dispatch(getAllUsers(data));
   }, []);
-
-  console.log('userList', userList);
   return (
     <Page className={classes.root} title="Customer List">
       <Container maxWidth={false}>
@@ -109,15 +96,4 @@ function ManageUsers({ deactivateUserRes }) {
     </Page>
   );
 }
-const mapStateToProps = state => {
-  return {
-    deactivateUserRes: state.account.deactivateUserRes
-  };
-};
-
-const mapDispatchToProps = dispatch => ({
-  getPendingAccounts: () => dispatch(getPendingAccounts()),
-  updateAccount: data => dispatch(updateUserAccount(data))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ManageUsers);
+export default ManageUsers;

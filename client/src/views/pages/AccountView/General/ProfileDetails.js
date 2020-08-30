@@ -56,6 +56,9 @@ function ProfileDetails({ user, className, ...rest }) {
     reader.readAsDataURL(e.target.files[0]);
     dispatch(uploadProfileImage(data))
 }
+const removePictureHandler=()=>{
+  setProfileImage("")
+}
 
   return (
     <Card
@@ -113,6 +116,7 @@ function ProfileDetails({ user, className, ...rest }) {
         <Button
           fullWidth
           variant="text"
+          onClick={removePictureHandler}
         >
           Remove picture
         </Button>
