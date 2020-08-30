@@ -32,6 +32,8 @@ password-ilia123
 
 
 .env 
+
+
 APP_NAME=BiraMedia
 APP_ENV=local
 APP_KEY=base64:WfFpdUjVgd+Qe1HNw0j2zbQ3fsfqAOXFu9nqkrFWeR0=
