@@ -50,7 +50,7 @@ function GeneralSettings({ className, ...rest }) {
   const updateProfile = useSelector(state => state.profile.updateProfile);
 
   const [country, setCountry] = useState(userProfile.country ? userProfile.country : 'Canada');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState(userProfile.mobile ? userProfile.mobile :'');
   const [phoneNumberError,setPhoneNumberError]=useState(false)
   const countryOptions = getCountries();
   let stateOptions = getStates(country);

@@ -131,7 +131,7 @@ function Results({ className, userList, deactivateUser,updateUserBlockStatus, ..
               </TableRow>
             </TableHead>
             <TableBody>
-              {userList.length > 0 ? userList.map((user, index) => {
+              {userList && userList.length > 0 ? userList.map((user, index) => {
                 return (
                   <TableRow hover key={index + 1}>
                     <TableCell>
@@ -226,7 +226,7 @@ function Results({ className, userList, deactivateUser,updateUserBlockStatus, ..
       </PerfectScrollbar>
       <TablePagination
         component="div"
-        count={userList.length}
+        count={userList ? userList.length : 0}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
         page={page}
