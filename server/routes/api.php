@@ -31,7 +31,7 @@ Route::group([
     'prefix' => 'v1'
 ], function ($router) {
     Route::post('upload-profile-image','UserProfileController@uploadImage');
-    Route::get('get-user-profile','UserProfileController@index')->middleware('jwt-auth');
-    Route::post('update-user-profile','UserProfileController@store')->middleware('jwt-auth');
+    Route::get('get-user-profile','UserProfileController@index')->middleware('auth-token');
+    Route::post('update-user-profile','UserProfileController@store')->middleware('auth-token');
 });
 

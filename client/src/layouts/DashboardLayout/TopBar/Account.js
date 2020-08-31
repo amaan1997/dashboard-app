@@ -34,9 +34,10 @@ function Account() {
   const history = useHistory();
   const ref = useRef(null);
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.account.user);
   const { enqueueSnackbar } = useSnackbar();
   const [isOpen, setOpen] = useState(false);
+  const user = useSelector((state) => state.account.user);
+  const userProfile = useSelector(state => state.profile.userProfile);
 
   const handleOpen = () => {
     setOpen(true);
@@ -70,7 +71,7 @@ function Account() {
         <Avatar
           alt="User"
           className={classes.avatar}
-          // src={account.user.avatar}
+          src={userProfile.profileImage ? userProfile.profileImage : user.avatar}
         />
         <Hidden smDown>
           <Typography

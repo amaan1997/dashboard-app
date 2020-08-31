@@ -389,6 +389,7 @@ function NavBar({ openMobile, onMobileClose, }) {
   const classes = useStyles();
   const location = useLocation();
   const { user } = useSelector((state) => state.account);
+  const userProfile = useSelector(state => state.profile.userProfile);
 
   let userInfo={}
   if(user && Object.keys(user).length > 0){
@@ -402,7 +403,7 @@ function NavBar({ openMobile, onMobileClose, }) {
     // eslint-disable-next-line
   }, [location.pathname]);
 
-  const userRole='admin'
+  let userRole='admin'
   userRoles.map(role=>{
     if(role.value===userInfo.role){
       userRole=role.label
@@ -435,7 +436,7 @@ function NavBar({ openMobile, onMobileClose, }) {
               <Avatar
                 alt="User"
                 className={classes.avatar}
-                src={user.avatar}
+                src={userProfile.profileImage ? userProfile.profileImage : user.avatar}
               />
             </RouterLink>
           </Box>
@@ -479,28 +480,6 @@ function NavBar({ openMobile, onMobileClose, }) {
           ))}
         </Box>
         <Divider />
-        <Box p={2}>
-          <Box
-            p={2}
-            borderRadius="borderRadius"
-            bgcolor="background.dark"
-          >
-            <Typography
-              variant="h6"
-              color="textPrimary"
-            >
-              Need Help?
-            </Typography>
-            <Link
-              variant="subtitle1"
-              color="secondary"
-              component={RouterLink}
-              to="/docs"
-            >
-              Check our docs
-            </Link>
-          </Box>
-        </Box>
       </PerfectScrollbar>
     </Box>
   );

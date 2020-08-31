@@ -59,6 +59,10 @@ const useStyles = makeStyles(theme => ({
   },
   headingText:{
     marginBottom: theme.spacing(2)
+  },
+  noRecords:{
+    textAlign:'right',
+    margin:20
   }
 }));
 
@@ -127,7 +131,7 @@ function Results({ className, userList, deactivateUser,updateUserBlockStatus, ..
               </TableRow>
             </TableHead>
             <TableBody>
-              {userList.map((user, index) => {
+              {userList.length > 0 ? userList.map((user, index) => {
                 return (
                   <TableRow hover key={index + 1}>
                     <TableCell>
@@ -179,7 +183,7 @@ function Results({ className, userList, deactivateUser,updateUserBlockStatus, ..
                     </TableCell>
                   </TableRow>
                 );
-              })}
+              }) : <h3 className={classes.noRecords}>No Records Found!</h3>}
             </TableBody>
           </Table>
           <Dialog

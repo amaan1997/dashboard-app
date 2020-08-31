@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\RegisterationMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use App\User;
 use App\BlockedUser;
 use JWTAuth;
@@ -77,7 +78,9 @@ class UserController extends Controller
     
                 if ($user->save())
                 {
-                    $token = self::getToken($request->email, $request->password); // generate user token
+                    $token =Str::random('130');
+
+                    // $token = self::getToken($request->email, $request->password); // generate user token
     
                     $user->auth_token = $token; // update user token
                     $user->update();
@@ -124,7 +127,9 @@ class UserController extends Controller
                     $is_block_user=$user->block;
 
                     if(is_null($is_block_user) || !$is_block_user->block_status){
-                        $token = self::getToken($request->email, $request->password);
+                        $token =Str::random('130');
+
+                        // $token = self::getToken($request->email, $request->password);
                         $user->auth_token = $token;
                         $user->save();
             

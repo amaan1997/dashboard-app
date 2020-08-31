@@ -79,11 +79,12 @@ function ManageUsers({ }) {
     };
     dispatch(getAllUsers(data));
   }, []);
+
   return (
     <Page className={classes.root} title="Customer List">
       <Container maxWidth={false}>
         <Header />
-        {userList && userList.data && userList.data.length > 0 && (
+        {userList  && (
           <Box mt={3}>
             <Results
               userList={userList.data}

@@ -20,6 +20,8 @@ class UserProfileController extends Controller
     public function index(Request $request)
     {
         try{
+            $file=public_path()."/images/profile-pic/test.png";
+    
             $userProfile=UserProfile::where('user_id',$request->user_id)->first();
         
             $response=new StdClass;
@@ -35,7 +37,7 @@ class UserProfileController extends Controller
                 $response->state=$userProfile->state;
                 $response->mobile=$userProfile->mobile;
                 $response->address=$userProfile->address;
-                $response->profileImage=$userProfile->profile_image ? public_path($userProfile->profile_image) :'';
+                $response->profileImage=$userProfile->profile_image ? asset($userProfile->profile_image):'';
     
                 return response()->json([
                     'success'=>true,
@@ -134,7 +136,7 @@ class UserProfileController extends Controller
         return response()->json([
             'status' => 201,
             'message' => 'User Profile Image Uploaded.',
-            'profileImage' => 'public/images/profile-pic/'.$imageName
+            'profileImage' => '/images/profile-pic/'.$imageName
         ], 201);
    
     }

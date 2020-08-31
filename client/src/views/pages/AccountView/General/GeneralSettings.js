@@ -78,6 +78,7 @@ function GeneralSettings({ className, ...rest }) {
         firstName: user.firstName,
         lastName: user.lastName,
         state: userProfile.state ? userProfile.state : 'Alabama',
+        country:country,
         gender: userProfile.gender ? userProfile.gender : 'male',
         address: userProfile.address ? userProfile.address : ''
       }}
@@ -97,7 +98,7 @@ function GeneralSettings({ className, ...rest }) {
             gender,
             address,
             state,
-            // country,
+            country,
             mobile:phoneNumber,
             profile_image:userProfile.profileImage
           }
