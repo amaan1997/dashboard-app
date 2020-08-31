@@ -47,7 +47,7 @@ function Header({ className, ...rest }) {
             variant="body1"
             color="textPrimary"
           >
-            Pending Account Approval
+            Manage Users
           </Typography>
         </Breadcrumbs>
         <Typography
@@ -55,7 +55,7 @@ function Header({ className, ...rest }) {
           color="textPrimary"
           className={classes.headingText}
         >
-          All Pending Users
+          All  Users
         </Typography>
       </Grid>
     </Grid>

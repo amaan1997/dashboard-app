@@ -29,23 +29,40 @@ import Results from './Results';
   function PendingAccountApprovalView({getPendingAccounts,updateAccount}) {
     const classes = useStyles();
     const isMountedRef = useIsMountedRef();
+
+    const [page,setPage]=useState(0);
+    const [limit,setLimit]=useState(10)
   
+    useEffect(() => {
+      getAccounts();
+    }, [getAccounts]);
+
     const  pendingAccounts  = useSelector(state => ({
         data: state.account.pendingAccounts,
       }), shallowEqual);
 
     const getAccounts = useCallback(() => {
-        getPendingAccounts()
+      const data={
+        pageNumber:page,
+        pageLimit:limit
+      }
+        getPendingAccounts(data)
     },[isMountedRef])
 
-    useEffect(() => {
-      getAccounts();
-    }, [getAccounts]);
   
     const updateStatusHandler=async(data)=>{
-        await updateAccount(data)
+        await updateAccount(data);
         await getPendingAccounts()
     }
+    const changePageHandler=(page)=>{
+      setPage(page)
+    }
+    const changeLimitHandler=limit=>{
+      setLimit(limit)
+    } 
+    console.log("page>",page)
+    console.log("limit>",limit)
+
     return (
       <Page
         className={classes.root}
@@ -53,20 +70,22 @@ import Results from './Results';
       >
         <Container maxWidth={false}>
           <Header />
-           {pendingAccounts && pendingAccounts.data && pendingAccounts.data.length > 0 && ( 
              <Box mt={3}>
                <Results accounts={pendingAccounts.data}
                updateStatus={updateStatusHandler}
+               pageChange={changePageHandler}
+               limitChange={changeLimitHandler}
+               page={page}
+               limit={limit}
                />
              </Box>
-           )}
         </Container>
       </Page>
     );
   }
 
   const mapDispatchToProps = dispatch => ({
-    getPendingAccounts: () => dispatch(getPendingAccounts()),
+    getPendingAccounts: (data) => dispatch(getPendingAccounts(data)),
     updateAccount: (data) => dispatch(updateUserAccount(data)),
 
     

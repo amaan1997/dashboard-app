@@ -15,20 +15,19 @@ import {
   Select,
   MenuItem
 } from '@material-ui/core';
-import {userRoles} from 'src/utils/data'
-import axios from 'src/utils/axios'
-import { API_URL, REGISTER_SUCCESS, REGISTER_FAILED } from 'src/actionTypes';
+import { userRoles } from 'src/utils/data';
+import {register} from 'src/actions/accountActions'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {},
-  select:{
-    width:505,
-    marginBottom:theme.spacing(1)
+  select: {
+    width: 505,
+    marginBottom: theme.spacing(1)
   },
-  alignCenter:{
-    textAlign:'center'
+  alignCenter: {
+    textAlign: 'center'
   }
-}))
+}));
 
 function RegisterForm({ className, onSubmitSuccess, ...rest }) {
   const classes = useStyles();
@@ -41,7 +40,7 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
         lastName: '',
         email: '',
         password: '',
-        role:'',
+        role: ''
       }}
       validationSchema={Yup.object().shape({
         firstName: Yup.string()
@@ -58,36 +57,18 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
           .min(7)
           .max(255)
           .required('Password is required'),
-        role: Yup.string()
-          .required('Role is required'),
+        role: Yup.string().required('Role is required')
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-        axios
-        .post(`${API_URL}/auth/register`, values)
-        .then(res => {
-          const accessToken = res.data.auth_token;
-          localStorage.setItem('access_token', accessToken);
-          axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-
-          const user = res.data.user;
-          dispatch({
-            type: REGISTER_SUCCESS,
-            res: user
-          });
+        try {
+          await dispatch(register(values));
           onSubmitSuccess();
-        })
-        .catch(err => {
-          const { error } = err.response.data;
-          dispatch({
-            type: REGISTER_FAILED,
-            error
-          });
-          const message = error || 'Something went wrong';
-
+        } catch (err) {
+          const message = err || 'Something went wrong';
           setStatus({ success: false });
           setErrors({ submit: message });
-        });
-    }}
+        }
+      }}
     >
       {({
         errors,
@@ -155,7 +136,7 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
             value={values.password}
             variant="outlined"
           />
-          <FormControl >
+          <FormControl>
             <InputLabel id="role">Role</InputLabel>
             <Select
               labelId="role"
@@ -167,11 +148,9 @@ function RegisterForm({ className, onSubmitSuccess, ...rest }) {
               value={values.role}
               className={classes.select}
             >
-              {
-                userRoles.map(role=>(
-                  <MenuItem value={role.value}>{role.label}</MenuItem>
-                  ))
-                }
+              {userRoles.map(role => (
+                <MenuItem value={role.value}>{role.label}</MenuItem>
+              ))}
             </Select>
           </FormControl>
           {Boolean(touched.role && errors.role) && (

@@ -21,6 +21,7 @@ import ScrollReset from './components/ScrollReset';
 import useSettings from './hooks/useSettings';
 import { createTheme } from './theme';
 import Routes from './Routes';
+import './App.css'
 
 const history = createBrowserHistory();
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });

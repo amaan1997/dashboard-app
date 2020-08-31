@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import {get} from 'lodash'
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import PropTypes from 'prop-types';
 import {
@@ -42,6 +43,7 @@ import {
   Users as UsersIcon
 } from 'react-feather';
 import Logo from 'src/components/Logo';
+import {userRoles} from 'src/utils/data'
 import NavItem from './NavItem';
 
 const navConfig = [
@@ -234,6 +236,11 @@ const navConfig = [
         href: '/app/pending-account-approval',
         icon: LockIcon
       },
+      {
+        title: 'Manage Users',
+        href: '/app/manage-users',
+        icon: UserPlusIcon
+      },
     ]
   },
   {
@@ -382,7 +389,13 @@ function NavBar({ openMobile, onMobileClose, }) {
   const classes = useStyles();
   const location = useLocation();
   const { user } = useSelector((state) => state.account);
+  const userProfile = useSelector(state => state.profile.userProfile);
 
+  let userInfo={}
+  if(user && Object.keys(user).length > 0){
+    userInfo=get(user,'data',{})
+  }
+  console.log("user>>>",user)
   useEffect(() => {
     if (openMobile && onMobileClose) {
       onMobileClose();
@@ -390,6 +403,12 @@ function NavBar({ openMobile, onMobileClose, }) {
     // eslint-disable-next-line
   }, [location.pathname]);
 
+  let userRole='admin'
+  userRoles.map(role=>{
+    if(role.value===userInfo.role){
+      userRole=role.label
+  }
+})
   const content = (
     <Box
       height="100%"
@@ -417,7 +436,7 @@ function NavBar({ openMobile, onMobileClose, }) {
               <Avatar
                 alt="User"
                 className={classes.avatar}
-                src={user.avatar}
+                src={userProfile.profileImage ? userProfile.profileImage : user.avatar}
               />
             </RouterLink>
           </Box>
@@ -432,13 +451,13 @@ function NavBar({ openMobile, onMobileClose, }) {
               color="textPrimary"
               underline="none"
             >
-              {`${user.firstName} ${user.lastName}`}
+              {`${userInfo.firstName} ${userInfo.lastName}`}
             </Link>
             <Typography
               variant="body2"
               color="textSecondary"
             >
-              {user.bio}
+              {userRole}
             </Typography>
           </Box>
         </Box>
@@ -461,28 +480,6 @@ function NavBar({ openMobile, onMobileClose, }) {
           ))}
         </Box>
         <Divider />
-        <Box p={2}>
-          <Box
-            p={2}
-            borderRadius="borderRadius"
-            bgcolor="background.dark"
-          >
-            <Typography
-              variant="h6"
-              color="textPrimary"
-            >
-              Need Help?
-            </Typography>
-            <Link
-              variant="subtitle1"
-              color="secondary"
-              component={RouterLink}
-              to="/docs"
-            >
-              Check our docs
-            </Link>
-          </Box>
-        </Box>
       </PerfectScrollbar>
     </Box>
   );

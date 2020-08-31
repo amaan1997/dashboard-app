@@ -83,6 +83,41 @@ const accountReducer = (state = initialState, action) => {
       });
     }
 
+    case actionTypes.GET_ALL_USERS_SUCCESS:{
+      return produce(state, (draft) => {
+        draft.userList = action.res;
+      });
+    }
+
+    case actionTypes.GET_ALL_USERS_FAILED:{
+      return produce(state, (draft) => {
+        draft.userList = [];
+      });
+    }
+
+    case actionTypes.DEACTIVATE_USER_SUCCESS:{
+      return produce(state, (draft) => {
+        draft.deactivateUserRes = action.res;
+      });
+    }
+    case actionTypes.DEACTIVATE_USER_FAILED:{
+      return produce(state, (draft) => {
+        draft.deactivateUserRes = action.error;
+      });
+    }
+    case actionTypes.UPDATE_BLOCK_STATUS_SUCCESS:{
+      return produce(state, (draft) => {
+        draft.updateBlockStatus = action.res;
+      });
+    }
+    case actionTypes.UPDATE_BLOCK_STATUS_FAILED:{
+      return produce(state, (draft) => {
+        draft.updateBlockStatus = action.error;
+      });
+    }
+
+    
+
     default: {
       return state;
     }

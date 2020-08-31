@@ -7,8 +7,11 @@
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
     </head>
     <body>
+        <h3>Hi {{$name}},</h3>
         <h5>
-            Thank you for your account submission.We are sorry to inform you that your account has been rejected.
-        </h5>          
+            Thank you for your account submission.Your account has been rejected.In case of any query please contact at  
+            <link href="">biramediagroup@gmail.com</link>
+            .
+        </h5>        
     </body>
 </html>
